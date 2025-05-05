@@ -15,4 +15,4 @@ The way we approached poster data download is by utilizing the TMDB and OMDB API
 We tackled this issue by training the image model on the movies which have the posters. 
 
 Image model Selection and Training
-To train an image model on the dataset we considered multiple options. We have attached a pdf file of the researched models. Finally, after researching models and understanding the pros and cons of each model carefully, we shortlisted 3 models: ResNet50, EfficientNetB4 and YOLO. We were able to implement ResNet and EfficientNet. The notebook for the same is uploaded.  
+To train an image model on the dataset we considered multiple options. We have attached a pdf file of the researched models. Finally, after researching models and understanding the pros and cons of each model carefully, we shortlisted 3 models: ResNet50, EfficientNetB4 and YOLO. 
