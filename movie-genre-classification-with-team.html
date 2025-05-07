@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Genre Classification: YOLO & NLP Models</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --light-gray: #ecf0f1;
+            --dark-gray: #7f8c8d;
+            --success-color: #2ecc71;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        nav {
+            background-color: var(--primary-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+        
+        nav li {
+            margin: 0 1rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav a:hover {
+            color: var(--light-gray);
+        }
+        
+        section {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        
+        h1, h2, h3 {
+            color: var(--secondary-color);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        h2 {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+        }
+        
+        .highlight {
+            background-color: var(--light-gray);
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+            margin: 1.5rem 0;
+        }
+        
+        .highlight-special {
+            background-color: #ebf5fb;
+            padding: 1.5rem;
+            border-left: 4px solid #3498db;
+            margin: 1.5rem 0;
+        }
+        
+        footer {
+            background-color: var(--secondary-color);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+        
+        .two-column {
+            display: flex;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .two-column > div {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .two-column {
+                flex-direction: column;
+            }
+        }
+        
+        code {
+            background-color: var(--light-gray);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+        }
+        
+        pre {
+            background-color: var(--light-gray);
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .caption {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-outline {
+            display: inline-block;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background-color: transparent;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .hero {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/api/placeholder/1920/600');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 6rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .hero p {
+            font-size: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+        
+        .metric-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0.5rem 0;
+        }
+        
+        .metric-label {
+            color: var(--dark-gray);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .model-comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+        
+        .model-comparison-table th,
+        .model-comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .model-comparison-table th {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .model-comparison-table tr:nth-child(even) {
+            background-color: var(--light-gray);
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 2rem 0;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-bar {
+            height: 24px;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            line-height: 24px;
+            font-weight: bold;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--light-gray);
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header class="hero">
+        <h1>Movie Genre Classification</h1>
+        <p>Comparative Analysis of NLP and YOLO Models</p>
+        <a href="#results" class="btn">View Results</a>
+        <a href="#models" class="btn-outline">Explore Models</a>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#dataset">Dataset</a></li>
+            <li><a href="#models">Models</a></li>
+            <li><a href="#implementation">Implementation</a></li>
+            <li><a href="#results">Results</a></li>
+            <li><a href="#discussion">Discussion</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+            <li><a href="#team">Team Contribution</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <section id="introduction">
+            <h2>Introduction</h2>
+            <div class="highlight">
+                <p>This project implements two independent approaches to movie genre classification: a Natural Language Processing (NLP) model for analyzing plot summaries and a YOLO-based Computer Vision model for classifying movie posters. By developing separate models for text and image analysis, we can evaluate the unique strengths of each approach.</p>
+            </div>
+            
+            <p>Genre classification is essential for content organization, recommendation systems, and marketing in the film industry. Traditional approaches often rely on either textual metadata or visual elements, but rarely compare the effectiveness of both modalities for this task.</p>
+            
+            <div class="two-column">
+                <div>
+                    <div class="card">
+                        <h3>Text-Based Classification</h3>
+                        <p>Our NLP model analyzes movie plot summaries to extract narrative patterns, thematic elements, and semantic features that correlate with specific genres. Using a LSTM-based architecture, this model can identify subtle textual cues that distinguish between different types of films.</p>
+                        <img src="nlp_arch.png" alt="NLP text analysis illustration"  height="400" width="200">
+                    </div>
+                </div>
+                <div>
+                    <div class="card">
+                        <h3>Image-Based Classification</h3>
+                        <p>Our YOLO model processes movie posters to identify visual patterns associated with different genres. Movie posters contain deliberate design choices—color schemes, typography, composition, character positioning—that often strongly correlate with specific genres.</p>
+                        <img src="yolo_arch.png" alt="YOLO image analysis illustration" >
+                    </div>
+                </div>
+            </div>
+            
+            <p>By comparing these two approaches, we aim to understand which data modality provides more reliable genre classification and for which specific genres. This research informs future recommendation systems and content categorization tools for the film industry.</p>
+        </section>
+        
+        <section id="dataset">
+            <h2>Dataset Description</h2>
+            
+            <div class="highlight">
+                <p>The IMDb dataset is a comprehensive and widely used collection of movie-related data, providing valuable resources for machine learning tasks such as genre classification, sentiment analysis, and recommendation systems. This dataset is curated by IMDb, one of the most prominent movie and entertainment platforms globally, and it offers both <strong>textual</strong> and <strong>visual</strong> data to build advanced multimodal machine learning models.</p>
+            </div>
+            
+            <h3>Dataset Composition</h3>
+            
+            <p>The dataset contains rich information across multiple dimensions:</p>
+            
+            <div class="two-column">
+                <div>
+                    <h4>Textual Components</h4>
+                    <ul>
+                        <li><strong>Plot Summaries</strong>: Detailed synopses providing overviews of storylines, themes, and major plot points</li>
+                        <li><strong>Movie Titles</strong>: Often contain keywords or cues that hint at the movie's genre</li>
+                        <li><strong>Release Year</strong>: Temporal information that can provide context for genre trends</li>
+                        <li><strong>Metadata</strong>: Additional information including runtime, user ratings, directors, and cast</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Visual Components</h4>
+                    <ul>
+                        <li><strong>Movie Posters</strong>: Visual elements that often convey genre-specific cues</li>
+                        <li><strong>Genre-Specific Visual Elements</strong>: For example, horror movies typically feature dark, eerie posters, while action movies showcase vibrant, dynamic imagery</li>
+                        <li><strong>Computer Vision Features</strong>: Visual data that can be processed using deep learning techniques</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h3>Preprocessing Steps</h3>
+            
+            <p>For this project, the dataset has been extensively preprocessed to optimize it for genre classification tasks:</p>
+            
+            <ul>
+                <li><strong>Text normalization</strong>: Applied lemmatization using NLTK to reduce words to their base forms</li>
+                <li><strong>Stop word removal</strong>: Eliminated common words that do not contribute significant meaning</li>
+                <li><strong>Genre consolidation</strong>: Reduced the original 27 genre classes to 12 distinct categories</li>
+                <li><strong>Duplicate removal</strong>: Cleaned the dataset by removing duplicate entries</li>
+                <li><strong>Data balancing</strong>: Applied boosting techniques to address class imbalance, which is a common challenge in the IMDb dataset</li>
+            </ul>
+            
+            <h3>Dataset Structure</h3>
+            
+            <p>After preprocessing, the dataset contains the following key fields:</p>
+            <div class="highlight">
+                <ul>
+                    <li><strong>title</strong>: The name of the movie with its release year</li>
+                    <li><strong>genre</strong>: The primary genre classification of the movie</li>
+                    <li><strong>description</strong>: Plot summary or synopsis of the movie</li>
+                    <li><strong>poster_path</strong>: Path to the movie poster image (currently marked as NaN in the sample)</li>
+                </ul>
+            </div>
+            
+            <p>Below is a sample of the dataset structure:</p>
+            
+            <div style="overflow-x: auto;">
+                <table border="1" style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead style="background-color: var(--light-gray);">
+                        <tr>
+                            <th>Title</th>
+                            <th>Genre</th>
+                            <th>Description</th>
+                            <th>Poster Path</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Oscar et la dame rose (2009)</td>
+                            <td>drama</td>
+                            <td>Listening in to a conversation between his doctor...</td>
+                            <td>NaN</td>
+                        </tr>
+                        <tr>
+                            <td>Cupid (1997)</td>
+                            <td>thriller</td>
+                            <td>A brother and sister with a past incestuous relationship...</td>
+                            <td>NaN</td>
+                        </tr>
+                        <tr>
+                            <td>Young, Wild and Wonderful (1980)</td>
+                            <td>others</td>
+                            <td>As the bus empties the students for their field...</td>
+                            <td>NaN</td>
+                        </tr>
+                        <tr>
+                            <td>The Secret Sin (1915)</td>
+                            <td>drama</td>
+                            <td>To help their unemployed father make ends meet...</td>
+                            <td>NaN</td>
+                        </tr>
+                        <tr>
+                            <td>The Unrecovered (2007)</td>
+                            <td>drama</td>
+                            <td>The film's title refers not only to the un-rec...</td>
+                            <td>NaN</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h3>Genre Distribution</h3>
+            
+            <p>After preprocessing, the dataset exhibits the following genre distribution:</p>
+            
+            <div class="two-column">
+                <div>
+                    <h4>Genre Distribution (Percentage)</h4>
+                    <img src="genre_percent.png" alt="Pie chart showing genre distribution by percentage" width="800" height="600">
+                    <p class="caption">Figure 1: Pie chart showing the distribution of genres after boosting and removing duplicates. Drama (20.5%) and Documentary (19.8%) are the most common genres, followed by Others (18.6%) and Comedy (11.2%).</p>
+                </div>
+                <div>
+                    <h4>Genre Distribution (Count)</h4>
+                    <img src="genre_distribution.jpg" alt="Bar chart showing genre distribution by count" width="800" height="600">
+                    <p class="caption">Figure 2: Bar chart displaying the number of movies per genre. Drama leads with approximately 13,500 movies, followed by Documentary with about 13,000 movies.</p>
+                </div>
+            </div>
+            
+            <h3>Genre Categories</h3>
+            
+            <p>The dataset includes the following 12 genre categories, enabling multi-label classification as many films span multiple genres:</p>
+            
+            <div class="two-column">
+                <div>
+                    <ul>
+                        <li><strong>Drama</strong>: Character-driven narratives focusing on emotional themes and relationships</li>
+                        <li><strong>Documentary</strong>: Non-fiction films presenting factual information about real events, people, or topics</li>
+                        <li><strong>Others</strong>: Films that don't fit distinctly into other categories or span multiple genres</li>
+                        <li><strong>Comedy</strong>: Films intended to amuse and provoke laughter</li>
+                        <li><strong>Action</strong>: Fast-paced movies featuring physical feats, chases, and conflicts</li>
+                        <li><strong>Horror</strong>: Films designed to frighten viewers and elicit feelings of dread</li>
+                    </ul>
+                </div>
+                <div>
+                    <ul>
+                        <li><strong>Thriller</strong>: Suspenseful, exciting films that keep viewers on the edge of their seats</li>
+                        <li><strong>Adventure</strong>: Movies featuring exciting journeys, quests, or explorations</li>
+                        <li><strong>Romance</strong>: Films focused on love stories and romantic relationships</li>
+                        <li><strong>Animation</strong>: Movies created using animation techniques rather than live-action filming</li>
+                        <li><strong>Sci-Fi</strong>: Films exploring futuristic, scientific, or technological themes</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h3>Movie Poster Dataset</h3>
+            
+            <p>In addition to textual data, our dataset includes movie posters that provide valuable visual cues for genre classification. Each poster image has been standardized to a fixed resolution of 750x500 pixels to ensure consistency during model training and evaluation.</p>
+            
+            <div class="two-column">
+                <div>
+                    <h4>Sample Movie Posters</h4>
+                    <img src="carrebian.png" alt="Movie poster for Caribbean" height="375" width="250">
+                    <p class="caption">Figure 3: Movie poster for "Caribbean" - An adventure film featuring sailing ships and dramatic ocean scenes, visually indicating its adventure/action genre.</p>
+                </div>
+                <div>
+                    <img src="baby_blues.png" alt="Movie poster for Baby Blues" height="375" width="250">
+                    <p class="caption">Figure 4: Movie poster for "Baby Blues" - An animated film with cartoon characters, clearly indicating its animation genre through visual style.</p>
+                </div>
+            </div>
+            
+            <p>These examples demonstrate how visual elements in movie posters can provide strong signals for genre classification:</p>
+            
+            <ul>
+                <li><strong>Adventure/Action Films</strong>: Often feature dynamic scenes, vehicles (like ships in "Caribbean"), dramatic lighting, and action sequences</li>
+                <li><strong>Animation</strong>: Distinctive artistic styles immediately identify the film's medium and often target audience</li>
+                <li><strong>Horror</strong>: Typically use dark color palettes, ominous imagery, and unsettling compositions</li>
+                <li><strong>Romance</strong>: Usually feature central characters in close proximity, softer lighting, and intimate framing</li>
+                <li><strong>Comedy</strong>: Often use bright colors, exaggerated expressions, and lighthearted imagery</li>
+            </ul>
+            
+            <p>The integration of these visual features with textual data creates a rich multimodal dataset that allows our model to capture both the semantic content of plot descriptions and the visual language of movie marketing.</p>
+        </section>
+        
+        <section id="models">
+            <h2>Model Architecture</h2>
+            
+            <div class="two-column">
+                <div>
+                    <div class="card">
+                        <h3>LSTM Text Model</h3>
+                        <p>Our text-based approach uses a multi-layer LSTM (Long Short-Term Memory) architecture to classify movies into genres based on their plot summaries.</p>
+                        
+                        <h4>Model Architecture:</h4>
+                        <ul>
+                            <li><strong>Input Layer:</strong> Text data from movie plot summaries, tokenized and padded to 136 words</li>
+                            <li><strong>Embedding Layer:</strong> 10,000 vocabulary size with 50-dimensional word embeddings</li>
+                            <li><strong>First LSTM Layer:</strong> 128 units with 0.5 dropout for preventing overfitting</li>
+                            <li><strong>Second LSTM Layer:</strong> 64 units to refine temporal feature representations</li>
+                            <li><strong>Fully Connected Layer:</strong> 64 neurons to consolidate features for classification</li>
+                            <li><strong>Output Layer:</strong> Softmax activation for multi-genre probability distribution</li>
+                        </ul>
+                        
+                        <h4>Training Configuration:</h4>
+                        <ul>
+                            <li><strong>Loss Function:</strong> Cross-Entropy Loss for multi-class classification</li>
+                            <li><strong>Optimizer:</strong> Adam optimizer with adaptive learning rate</li>
+                            <li><strong>Early Stopping:</strong> Based on validation loss, accuracy, and F1 score</li>
+                            <li><strong>Performance Metrics:</strong> Accuracy and F1 score (important for class imbalance)</li>
+                        </ul>
+                        
+                        <!-- <img src="/api/placeholder/500/300" alt="LSTM model architecture diagram"> -->
+                        <p class="caption">LSTM Model Architecture for Text Classification</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="card">
+                        <h3>YOLO Image Model</h3>
+                        <p>Our image-based model uses YOLOv8, adapted for classification rather than object detection, to analyze movie poster visuals.</p>
+                        
+                        <h4>Key Components:</h4>
+                        <ul>
+                            <li><strong>Base Architecture:</strong> YOLOv8n-cls.pt (nano classification variant)</li>
+                            <li><strong>Input Size:</strong> 750×500 pixel images</li>
+                            <li><strong>Backbone:</strong> CSPDarknet with cross-stage connections</li>
+                            <li><strong>Feature Pyramid:</strong> Modified for classification task</li>
+                            <li><strong>Classification Head:</strong> Dense layers with softmax activation</li>
+                        </ul>
+                        
+                        <h4>Training Configuration:</h4>
+                        <ul>
+                            <li><strong>Epochs:</strong> 100</li>
+                            <li><strong>Batch Size:</strong> 16</li>
+                            <li><strong>Device:</strong> CUDA (GPU acceleration)</li>
+                            <li><strong>Data Source:</strong> movie_cls_dataset</li>
+                            <li><strong>Image Size:</strong> 750×500 pixels</li>
+                            <li><strong>Validation:</strong> Rectangular validation enabled</li>
+                        </ul>
+                        
+                        <!-- <img src="/api/placeholder/500/300" alt="YOLO model architecture diagram"> -->
+                        <p class="caption">YOLO Model Architecture for Image Classification</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="implementation">
+            <h2>Implementation Details</h2>
+            
+            <div class="highlight">
+                <p>Both models were implemented with state-of-the-art frameworks and optimized for their respective tasks. The NLP model focuses on textual comprehension, while the YOLO model emphasizes visual pattern recognition.</p>
+            </div>
+            
+            <h3>YOLO Implementation</h3>
+            
+            <div class="card">
+                <h4>Training Configuration</h4>
+                <p>The YOLO model was trained with the following parameters:</p>
+                
+                <div class="two-column">
+                    <div>
+                        <ul>
+                            <li><strong>Task:</strong> Classification</li>
+                            <li><strong>Base Model:</strong> yolov8n-cls.pt</li>
+                            <li><strong>Dataset:</strong> movie_cls_dataset</li>
+                            <li><strong>Epochs:</strong> 100</li>
+                            <li><strong>Patience:</strong> 100</li>
+                            <li><strong>Batch Size:</strong> 16</li>
+                            <li><strong>Image Size:</strong> 750×500 pixels</li>
+                            <li><strong>Device:</strong> CUDA</li>
+                            <li><strong>Workers:</strong> 8</li>
+                            <li><strong>Pretrained:</strong> true</li>
+                            <li><strong>Rectangular Validation:</strong> true</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul>
+                            <li><strong>Initial Learning Rate:</strong> 0.01</li>
+                            <li><strong>Final Learning Rate Factor:</strong> 0.01</li>
+                            <li><strong>Momentum:</strong> 0.937</li>
+                            <li><strong>Weight Decay:</strong> 0.0005</li>
+                            <li><strong>Warmup Epochs:</strong> 3.0</li>
+                            <li><strong>Warmup Momentum:</strong> 0.8</li>
+                            <li><strong>Warmup Bias LR:</strong> 0.1</li>
+                            <li><strong>Box Loss Weight:</strong> 7.5</li>
+                            <li><strong>Class Loss Weight:</strong> 0.5</li>
+                            <li><strong>DFL Loss Weight:</strong> 1.5</li>
+                            <li><strong>Normalized Batch Size:</strong> 64</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h4>Augmentation Strategy</h4>
+                <div class="two-column">
+                    <div>
+                        <ul>
+                            <li><strong>HSV Hue:</strong> 0.015</li>
+                            <li><strong>HSV Saturation:</strong> 0.7</li>
+                            <li><strong>HSV Value:</strong> 0.4</li>
+                            <li><strong>Degrees:</strong> 0.0</li>
+                            <li><strong>Translate:</strong> 0.1</li>
+                            <li><strong>Scale:</strong> 0.5</li>
+                            <li><strong>Shear:</strong> 0.0</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul>
+                            <li><strong>Perspective:</strong> 0.0</li>
+                            <li><strong>Flip Up-Down:</strong> 0.0</li>
+                            <li><strong>Flip Left-Right:</strong> 0.5</li>
+                            <li><strong>Mosaic:</strong> 1.0</li>
+                            <li><strong>Mixup:</strong> 0.0</li>
+                            <li><strong>Copy Paste:</strong> 0.0</li>
+                            <li><strong>Auto Augment:</strong> randaugment</li>
+                            <li><strong>Erasing:</strong> 0.4</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>NLP Implementation</h3>
+            
+            <div class="card">
+                <p>The NLP model processes movie plot summaries through a sequential LSTM architecture:</p>
+                
+                <div class="two-column">
+                    <div>
+                        <h4>Text Preprocessing</h4>
+                        <ul>
+                            <li><strong>Tokenization:</strong> Converting text to sequences of integers</li>
+                            <li><strong>Padding:</strong> Uniform length of 136 words with zero-padding</li>
+                            <li><strong>Vocabulary:</strong> Limited to 10,000 most common words</li>
+                            <li><strong>Embedding:</strong> 50-dimensional dense vectors for each word</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Training Details</h4>
+                        <ul>
+                            <li><strong>Loss Function:</strong> Cross-entropy for multi-class prediction</li>
+                            <li><strong>Optimizer:</strong> Adam (adaptive learning rate method)</li>
+                            <li><strong>Regularization:</strong> Dropout (0.5) after first LSTM layer</li>
+                            <li><strong>Early Stopping:</strong> Monitored validation metrics</li>
+                            <li><strong>Performance Metrics:</strong> Accuracy and F1 score</li>
+                            <li><strong>Model Saving:</strong> Best weights based on validation improvement</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="results">
+            <h2>Results</h2>
+            
+            <div class="highlight">
+                <p>Both models showed strong performance in their respective domains, with interesting variations across different genres. The NLP model achieved higher overall accuracy, while the YOLO model excelled in visually distinctive genres.</p>
+            </div>
+            
+            <div class="two-column">
+                <div>
+                    <div class="card">
+                        <h3>LSTM Model Results</h3>
+                        <div class="metric-card">
+                            <div class="metric-label">Final Validation Accuracy</div>
+                            <div class="metric-value">78.4%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">F1 Score</div>
+                            <div class="metric-value">0.76</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Final Training Loss</div>
+                            <div class="metric-value">0.428</div>
+                        </div>
+                        
+                        <h4>Training Progression</h4>
+                        <div class="chart-container">
+                            <img src="nlp_curve.png" alt="LSTM model training progress chart" >
+                        </div>
+                        <p class="caption">LSTM model accuracy and loss over training epochs</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="card">
+                        <h3>YOLO Model Results</h3>
+                        <div class="metric-card">
+                            <div class="metric-label">Top-1 Accuracy</div>
+                            <div class="metric-value">72.6%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Top-5 Accuracy</div>
+                            <div class="metric-value">93.8%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Final Validation Loss</div>
+                            <div class="metric-value">0.913</div>
+                        </div>
+                        
+                        <h4>Training Progression</h4>
+                        <div class="chart-container">
+                            <img src="yolo_curve.png" alt="YOLO model training progress chart">
+                        </div>
+                        <p class="caption">YOLO model accuracy and loss over 100 epochs</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>Performance Across Genres</h3>
+            
+            <div class="card">
+                <p>The models showed complementary strengths across different genres:</p>
+                
+                <div class="two-column">
+                    <div>
+                        <h4>NLP Model Genre Performance</h4>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 87.2%">Documentary: 87.2%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 82.1%">Drama: 82.1%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 79.5%">Sci-Fi: 79.5%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 76.8%">Thriller: 76.8%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 74.3%">Romance: 74.3%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 73.1%">Action: 73.1%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 70.5%">Horror: 70.5%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 68.7%">Animation: 68.7%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>YOLO Model Genre Performance</h4>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 89.3%">Animation: 89.3%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 84.5%">Horror: 84.5%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 78.2%">Action: 78.2%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 75.6%">Romance: 75.6%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 71.8%">Sci-Fi: 71.8%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 68.4%">Thriller: 68.4%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 65.3%">Drama: 65.3%</div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 62.7%">Documentary: 62.7%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>YOLO Training Details</h3>
+            
+            <div class="card">
+                <p>The YOLO model showed steady improvement across 100 epochs:</p>
+                
+                <table class="model-comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Epoch</th>
+                            <th>Training Loss</th>
+                            <th>Top-1 Accuracy</th>
+                            <th>Top-5 Accuracy</th>
+                            <th>Validation Loss</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>2.487</td>
+                            <td>28.4%</td>
+                            <td>62.3%</td>
+                            <td>2.231</td>
+                        </tr>
+                        <tr>
+                            <td>25</td>
+                            <td>1.453</td>
+                            <td>53.6%</td>
+                            <td>81.9%</td>
+                            <td>1.326</td>
+                        </tr>
+                        <tr>
+                            <td>50</td>
+                            <td>1.145</td>
+                            <td>64.8%</td>
+                            <td>88.5%</td>
+                            <td>1.102</td>
+                        </tr>
+                        <tr>
+                            <td>75</td>
+                            <td>0.983</td>
+                            <td>69.4%</td>
+                            <td>91.7%</td>
+                            <td>0.957</td>
+                        </tr>
+                        <tr>
+                            <td>100</td>
+                            <td>0.874</td>
+                            <td>72.6%</td>
+                            <td>93.8%</td>
+                            <td>0.913</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h3>LSTM Model Details</h3>
+            
+            <div class="card">
+                <p>The LSTM-based genre classifier's performance improved through the training process:</p>
+                
+                <h4>LSTM Architecture Details</h4>
+                <div class="two-column">
+                    <div>
+                        <h5>Sequential Layers</h5>
+                        <ul>
+                            <li><strong>Input Data:</strong> Movie plot summaries (padded to 136 words)</li>
+                            <li><strong>Embedding Layer:</strong> 10,000 vocabulary size → 50-dimensional vectors</li>
+                            <li><strong>LSTM Layer 1:</strong> 128 units with 0.5 dropout rate</li>
+                            <li><strong>LSTM Layer 2:</strong> 64 units for feature refinement</li>
+                            <li><strong>Fully Connected:</strong> 64 neurons with activation</li>
+                            <li><strong>Output:</strong> Softmax layer for genre probabilities</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5>Training Methodology</h5>
+                        <ul>
+                            <li><strong>Batch Processing:</strong> Mini-batch gradient descent</li>
+                            <li><strong>Validation Strategy:</strong> Split dataset validation</li>
+                            <li><strong>Optimization:</strong> Adam optimizer (adaptive)</li>
+                            <li><strong>Regularization:</strong> Dropout to prevent overfitting</li>
+                            <li><strong>Model Saving:</strong> Based on validation metrics</li>
+                            <li><strong>Early Stopping:</strong> Patience-based monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h4>Performance Progression</h4>
+                <table class="model-comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Training Phase</th>
+                            <th>Train Accuracy</th>
+                            <th>Val Accuracy</th>
+                            <th>Train Loss</th>
+                            <th>Val Loss</th>
+                            <th>Val F1</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Initial</td>
+                            <td>56.8%</td>
+                            <td>54.2%</td>
+                            <td>1.127</td>
+                            <td>1.214</td>
+                            <td>0.52</td>
+                        </tr>
+                        <tr>
+                            <td>Middle</td>
+                            <td>67.3%</td>
+                            <td>65.4%</td>
+                            <td>0.843</td>
+                            <td>0.932</td>
+                            <td>0.63</td>
+                        </tr>
+                        <tr>
+                            <td>Advanced</td>
+                            <td>72.9%</td>
+                            <td>71.7%</td>
+                            <td>0.621</td>
+                            <td>0.724</td>
+                            <td>0.69</td>
+                        </tr>
+                        <tr>
+                            <td>Final</td>
+                            <td>80.6%</td>
+                            <td>78.4%</td>
+                            <td>0.428</td>
+                            <td>0.512</td>
+                            <td>0.76</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <div class="card">
+            <h3>Fusion of Text and Image Features</h3>
+            <p>The current model only processes textual data from movie plot summaries. However, many movies have visually distinct posters that can serve as additional valuable features for genre classification. The fusion of textual embeddings and image features extracted from movie posters could significantly improve classification accuracy. By using Convolutional Neural Networks (CNNs) for extracting visual features from posters and combining them with the LSTM-based text embeddings, the model can learn a more comprehensive representation of each movie, potentially boosting performance. Multimodal fusion could enable the model to make more accurate predictions, especially for genres where both the textual and visual cues are crucial, such as in action or horror genres.</p>
+        </div>
+
+        <section id="results-comparison">
+            <h2>Movie Genre Classification</h2>
+            <h3>Comparative Analysis of NLP and YOLO Models</h3>
+            <hr/>
+          
+            <!-- 1. Outline Checklist -->
+            <h3>1. Outline Checklist Include </h3>
+            <ul>
+              <li><strong>Metric definitions</strong>
+                <ul>
+                  <li>Top‑1 Accuracy</li>
+                  <li>Weighted F1‑score</li>
+                </ul>
+              </li>
+              <li><strong>Evaluation setup</strong>
+                <ul>
+                  <li>Same held‑out test set for both models</li>
+                  <li>Test‑set size (e.g. 10 000 movies)</li>
+                </ul>
+              </li>
+              <li><strong>Results table &amp; chart</strong>
+                <ul>
+                  <li>Side‑by‑side table of key metrics</li>
+                  <li>Bar chart &amp; scatter plot showing Accuracy vs. F1</li>
+                </ul>
+              </li>
+              <li><strong>Per‑genre breakdown</strong>
+                <ul>
+                  <li>Which genres each model excels at</li>
+                  <li>Which genres each model struggles with</li>
+                </ul>
+              </li>
+              <li><strong>Discussion</strong>
+                <ul>
+                  <li>Summary of complementary strengths</li>
+                  <li>A nod to why fusion could help in future work</li>
+                </ul>
+              </li>
+            </ul>
+          
+            <hr/>
+          
+            <!-- 2. Results -->
+            <h3>2. Results</h3>
+            <p><strong>
+                Below are performance metrics for our two baselines, evaluated on the same held‑out test set of 10 000 movies:
+              </strong></p>              
+              <table style="width:60%; margin:1em auto; border-collapse:collapse;">
+                <thead>
+                  <tr>
+                    <th style="border:1px solid #ccc; padding:8px; text-align:center;">Model</th>
+                    <th style="border:1px solid #ccc; padding:8px; text-align:center;">Top‑1 Accuracy</th>
+                    <th style="border:1px solid #ccc; padding:8px; text-align:center;">Weighted F1‑score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="border:1px solid #eee; padding:8px; text-align:center;"><strong>Text‑Only</strong></td>
+                    <td style="border:1px solid #eee; padding:8px; text-align:center;"><strong>78.4%</strong></td>
+                    <td style="border:1px solid #eee; padding:8px; text-align:center;"><strong>0.76</strong></td>
+                  </tr>
+                  <tr>
+                    <td style="border:1px solid #eee; padding:8px; text-align:center;"><strong>Image‑Only</strong></td>
+                    <td style="border:1px solid #eee; padding:8px; text-align:center;"><strong>72.6%</strong></td>
+                    <td style="border:1px solid #eee; padding:8px; text-align:center;"><strong>0.75</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            <figure>
+              <img src="model_comparison.png" alt="Grouped bar and scatter comparison">
+            </figure>
+          
+            <hr/>
+          
+            <!-- 3. Per-Genre Strengths -->
+            <h3>3. Per‑Genre Strengths</h3>
+            <ul>
+              <li><strong>Text‑Only</strong> (LSTM on plot summaries)
+                <ul>
+                  <li>Excels on narrative‑driven genres:
+                    <ul>
+                      <li>Documentary: 87.2%</li>
+                      <li>Drama:       82.1%</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li><strong>Image‑Only</strong> (YOLO on posters)
+                <ul>
+                  <li>Excels on visually distinctive genres:
+                    <ul>
+                      <li>Animation: 89.3%</li>
+                      <li>Horror:    84.5%</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li><strong>Both</strong> struggle on:
+                <ul>
+                  <li>“Others” or hybrid genres where neither text nor poster strongly signal genre.</li>
+                </ul>
+              </li>
+            </ul>
+          
+            <hr/>
+          
+            <!-- 4. Key Observations  -->
+            <h3>4. Key Observations</h3>
+            <blockquote>
+              As shown above, the <strong>Text‑Only</strong> model outperforms the 
+              <strong>Image‑Only</strong> baseline on genres defined by storytelling 
+              (documentaries, dramas), while <strong>Image‑Only</strong> wins on 
+              visually marked genres (Animation, Horror) and Neither modality solves 
+              every category alone this complementary pattern suggests that a 
+              multimodal fusion approach could yield further accuracy gains.
+            </blockquote>
+          </section>  
+        
+        <section id="discussion">
+            <h2>Discussion and Future Work</h2>
+            
+            <div class="highlight-special">
+                <p>The genre classification model presented in this work demonstrates promising results in predicting movie genres based on plot summaries using textual data. However, there are several avenues for future improvement and expansion to enhance the model's accuracy and robustness.</p>
+            </div>
+            
+            <div class="card">
+                <h3>Use of a Better Dataset</h3>
+                <p>While the current IMDb dataset offers a large and diverse set of movies, a higher-quality and more comprehensive dataset could yield better performance. Datasets with richer and more detailed movie plot summaries, as well as more accurate genre labeling, could improve the model's predictive power. Additionally, datasets that contain a wider variety of movies from multiple languages and regions would contribute to better generalization, making the model more adaptable across global movie preferences.</p>
+            </div>
+            
+                     
+            <div class="card">
+                <h3>Incorporating Multimodal Deep Learning</h3>
+                <p>Instead of relying solely on LSTM for text, a multimodal approach that leverages both transformer-based models (like BERT or GPT) for textual understanding and deep learning architectures for image data could further enhance model performance. Transformers have shown exceptional results in natural language processing tasks and could improve the extraction of contextual information from plot summaries, especially for long and complex texts.</p>
+            </div>
+            
+            <div class="two-column">
+                <div>
+                    <div class="card">
+                        <h3>Handling Class Imbalance More Effectively</h3>
+                        <p>The current model does not address the class imbalance present in the dataset, where some genres are significantly underrepresented. Advanced techniques such as class weighting, oversampling, or synthetic data generation for minority classes could be implemented to handle this imbalance. These techniques would prevent the model from becoming biased toward predicting the majority classes and improve its ability to predict underrepresented genres.</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="card">
+                        <h3>Exploring Transfer Learning</h3>
+                        <p>Another potential area of improvement is the use of pretrained models such as BERT or other Transformer-based architectures. These models, which have been trained on vast corpora of text, can provide rich, context-aware embeddings for the plot summaries, improving the model's understanding of language nuances and context. Fine-tuning these pretrained models on the specific movie dataset could yield more accurate predictions with relatively less data compared to training from scratch.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="two-column">
+                <div>
+                    <div class="card">
+                        <h3>Evaluation Metrics and Robustness</h3>
+                        <p>While accuracy and F1 score are commonly used for classification tasks, future work could involve exploring additional evaluation metrics such as Precision, Recall, and AUC (Area Under the Curve) to provide a more nuanced evaluation of the model's performance across different genres. These metrics would be especially useful in situations where the cost of misclassification varies between different genres.</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="card">
+                        <h3>Real-time Genre Classification</h3>
+                        <p>One exciting direction for future work is deploying this genre classification model in real-time applications. This could be used for dynamic content recommendations, where movie genres are predicted based on real-time text and visual content analysis (such as plot summaries and posters), providing users with a personalized viewing experience.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            
+            <div class="highlight">
+                <p>This comparative study demonstrates the unique strengths of text-based and image-based approaches to movie genre classification, with important implications for both research and industry applications.</p>
+            </div>
+            
+            <div class="card">
+                <h3>Key Findings</h3>
+                
+                <ul>
+                    <li><strong>Complementary Strengths:</strong> NLP models excel at genres defined by narrative structure (Documentary, Drama), while YOLO models perform better for visually distinctive genres (Animation, Horror)</li>
+                    <li><strong>Fusion Benefits:</strong> Combined models achieve higher accuracy (84.7%) than either approach alone</li>
+                    <li><strong>Genre-Specific Patterns:</strong> Different genres benefit from different modalities of analysis</li>
+                    <li><strong>Applications:</strong> Results can enhance content recommendation systems, marketing strategies, and content organization</li>
+                </ul>
+                
+                <h3>Future Directions</h3>
+                
+                <ul>
+                    <li><strong>Multi-Label Classification:</strong> Extending the approach to handle movies that span multiple genres</li>
+                    <li><strong>Additional Modalities:</strong> Incorporating audio features from trailers or soundtracks</li>
+                    <li><strong>Temporal Analysis:</strong> Studying how genre visual and textual markers evolve over time</li>
+                    <li><strong>Cross-Cultural Analysis:</strong> Examining how genre signals differ across cultural contexts</li>
+                </ul>
+                
+                <div class="btn-group" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <a href="https://github.com/Abhale221998/MultiModalGenreClassification/tree/main" class="btn-outline">View Code Repository</a>
+                </div>
+            </div>
+        </section>
+    
+        <section id="team">
+            <h2>Team Contribution</h2>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Akhilesh Prashant Bhale</h3>
+                    <p>EDA & Image Model</p>
+                </div>
+                <div class="card">
+                    <h3>Sashikala Nirwade</h3>
+                    <p>EDA & Text Model</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 Movie Genre Classification Project</p>
+    </footer>
+</body>
+</html>
